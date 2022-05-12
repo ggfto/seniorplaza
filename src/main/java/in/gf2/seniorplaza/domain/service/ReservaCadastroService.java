@@ -13,9 +13,11 @@ import in.gf2.seniorplaza.Utils;
 import in.gf2.seniorplaza.api.model.CheckinInput;
 import in.gf2.seniorplaza.api.model.Checkout;
 import in.gf2.seniorplaza.api.model.ReservaInput;
+import in.gf2.seniorplaza.domain.exception.PessoaInexistenteException;
 import in.gf2.seniorplaza.domain.exception.ReservaExistenteException;
 import in.gf2.seniorplaza.domain.exception.ReservaInexistenteException;
 import in.gf2.seniorplaza.domain.model.Reserva;
+import in.gf2.seniorplaza.domain.repository.PessoaRepository;
 import in.gf2.seniorplaza.domain.repository.ReservaRepository;
 
 @Service
@@ -24,6 +26,9 @@ public class ReservaCadastroService {
 
 	@Autowired
 	private ReservaRepository reservaRepository;
+	
+	@Autowired
+	private PessoaRepository pessoaRepository;
 	
 	@Autowired
 	private CheckoutService checkinService;
@@ -40,13 +45,19 @@ public class ReservaCadastroService {
 		reserva.setPessoaId(reservaInput.getPessoaId());
 		reserva.setDataReserva(Utils.timestampFromString(reservaInput.getDataReserva()));
 		reserva.setVagaGaragem(reservaInput.isVagaGaragem());
-		var data = new Timestamp(new Date().getTime());
-		var input = reservaRepository.findByPessoaId(reserva.getPessoaId());
-		if(input != null &&((atualizando && input.getId().compareTo(reserva.getId()) != 0 || !atualizando))) {
-			throw new ReservaExistenteException(input.getId().toString());
+		var dataCadastro = new Timestamp(new Date().getTime());
+		var dataAlteracao = dataCadastro;
+		var oInput = reservaRepository.findByPessoaId(reserva.getPessoaId());
+		Reserva input = null;
+		if(oInput.isPresent()) {
+			input = oInput.get();
+			if((atualizando && input.getId().compareTo(reserva.getId()) != 0 || !atualizando)) {
+				throw new ReservaExistenteException(input.getId().toString());
+			}
+			dataCadastro = input.getDataCadastro();
 		}
-		reserva.setDataCadastro(!atualizando ? data : input.getDataCadastro());
-		reserva.setDataAlteracao(data);
+		reserva.setDataCadastro(dataCadastro);
+		reserva.setDataAlteracao(dataAlteracao);
 		return reservaRepository.save(reserva);
 	}
 	
@@ -55,10 +66,18 @@ public class ReservaCadastroService {
 		if(!reserva.isPresent()) {
 			throw new ReservaInexistenteException(reservaId.toString());
 		}
+		var pessoa = pessoaRepository.findById(checkinInput.getPessoaId());
+		if(!pessoa.isPresent()) {
+			throw new PessoaInexistenteException(checkinInput.getPessoaId().toString());
+		}
 		var reservation = reserva.get();
 		var data = new Timestamp(new Date().getTime());
+		var dataChegada = data;
+		if(checkinInput.getDataChegada() != null && !"".equals(checkinInput.getDataChegada())) {
+			dataChegada = Utils.timestampFromString(checkinInput.getDataChegada());
+		}
 		reservation.setDataAlteracao(data);
-		reservation.setDataChegada(data);
+		reservation.setDataChegada(dataChegada);
 		reservation.setPessoaId(reservaId);
 		return reservaRepository.save(reservation);
 	}

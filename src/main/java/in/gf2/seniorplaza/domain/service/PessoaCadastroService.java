@@ -2,19 +2,23 @@ package in.gf2.seniorplaza.domain.service;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.gf2.seniorplaza.Utils;
 import in.gf2.seniorplaza.domain.exception.CPFInvalidoException;
-import in.gf2.seniorplaza.domain.exception.PessoaExistenteException;
 import in.gf2.seniorplaza.domain.exception.LockedReservaException;
+import in.gf2.seniorplaza.domain.exception.PessoaExistenteException;
 import in.gf2.seniorplaza.domain.model.Pessoa;
-import in.gf2.seniorplaza.domain.model.Reserva;
 import in.gf2.seniorplaza.domain.repository.PessoaRepository;
 import in.gf2.seniorplaza.domain.repository.ReservaRepository;
 
@@ -22,6 +26,8 @@ import in.gf2.seniorplaza.domain.repository.ReservaRepository;
 @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
 public class PessoaCadastroService {
 
+	private static final int PAGE_SIZE = 10;
+	
 	@Autowired
 	private PessoaRepository pessoaRepository;
 	
@@ -30,6 +36,14 @@ public class PessoaCadastroService {
 	
 	public Pessoa savePessoa(Pessoa pessoa) {
 		return savePessoa(pessoa, false);
+	}
+	
+	public List<Pessoa> getAllPessoasPaged(Integer page) {
+		List<Pessoa> list = new ArrayList<>();
+		Pageable paging = PageRequest.of(page, PAGE_SIZE);
+		Page<Pessoa> paged = pessoaRepository.findAll(paging);
+		list = paged.toList();
+		return list;
 	}
 	
 	public Pessoa savePessoa(Pessoa pessoa, boolean atualizando) {
@@ -48,9 +62,11 @@ public class PessoaCadastroService {
 	}
 	
 	public void deletePessoa(BigDecimal id) {
-		Reserva reserva = reservaRepository.findByPessoaId(id);
-		if(reserva != null)
-			throw new LockedReservaException(reserva.getId().toString());
+		var reserva = reservaRepository.findByPessoaId(id);
+		if(reserva.isPresent()) {
+			var reservation = reserva.get();
+			throw new LockedReservaException(reservation.getId().toString());
+		}
 		pessoaRepository.deleteById(id);
 	}
 }

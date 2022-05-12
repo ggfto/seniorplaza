@@ -76,8 +76,8 @@ public class ReservaController extends PlazaController {
 	}
 	
 	@PostMapping("/checkin/{id}")
-	public ResponseEntity<Reserva> doCheckin(@PathVariable BigDecimal id, @Valid @RequestBody CheckinInput pessoa) {
-		return ResponseEntity.ok(reservaService.checkin(id, pessoa));
+	public ResponseEntity<Reserva> doCheckin(@PathVariable BigDecimal id, @Valid @RequestBody CheckinInput checkinInput) {
+		return ResponseEntity.ok(reservaService.checkin(id, checkinInput));
 	}
 	
 	@PostMapping("/checkout/{id}")

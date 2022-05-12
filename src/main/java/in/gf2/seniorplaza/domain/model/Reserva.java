@@ -39,4 +39,11 @@ public class Reserva {
 	private Timestamp dataCadastro;
 	
 	private Timestamp dataAlteracao;
+
+	@Override
+	public String toString() {
+		return "Reserva [id=" + id + ", quarto=" + quarto + ", pessoaId=" + pessoaId + ", dataReserva=" + dataReserva
+				+ ", dataChegada=" + dataChegada + ", dataSaida=" + dataSaida + ", vagaGaragem=" + vagaGaragem
+				+ ", dataCadastro=" + dataCadastro + ", dataAlteracao=" + dataAlteracao + "]";
+	}
 }

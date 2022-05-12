@@ -1,6 +1,6 @@
 package in.gf2.seniorplaza;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
@@ -20,19 +20,74 @@ public class PessoaRepositoryTest {
 	private PessoaRepository pessoaRepository;
 	
 	@Test
-	public void insertPessoa() {
-		Pessoa p1 = new Pessoa();
-		p1.setCpf("791.754.750-73");
-		p1.setNome("John Doe");
-		p1.setEmail("john@doe.com");
-		p1.setTelefone("9999999");
-		pessoaRepository.save(p1);
-		Integer countPessoa = pessoaRepository.findAll().size();
-		assertEquals(1, countPessoa);
+	public void whenFindByCpfContaining_thenReturnPessoa() {
+		//given
+		Pessoa john = new Pessoa();
+		john.setCpf("791.754.750-73");
+		john.setNome("John Doe");
+		john.setEmail("john@doe.com");
+		john.setTelefone("9999999");
+		pessoaRepository.save(john);
 		
-		Pessoa p2 = pessoaRepository.findByCpfContaining("791");
+		//when
+		Pessoa found = pessoaRepository.findByCpfContaining("791");
 		
-		assertNotNull(p2);
-		assertEquals(p1, p2);
+		//then
+		assertNotNull(found);
+		assertThat(found.getCpf()).isEqualTo(john.getCpf());
+	}
+	
+	@Test
+	public void whenFindByCpf_thenReturnPessoa() {
+		//given
+		Pessoa john = new Pessoa();
+		john.setCpf("791.754.750-73");
+		john.setNome("John Doe");
+		john.setEmail("john@doe.com");
+		john.setTelefone("9999999");
+		pessoaRepository.save(john);
+		
+		//when
+		Pessoa found = pessoaRepository.findByCpf("79175475073");
+		
+		//then
+		assertNotNull(found);
+		assertThat(found.getCpf()).isEqualTo(john.getCpf());
+	}
+	
+	@Test
+	public void whenFindByEmail_thenReturnPessoa() {
+		//given
+		Pessoa john = new Pessoa();
+		john.setCpf("791.754.750-73");
+		john.setNome("John Doe");
+		john.setEmail("john@doe.com");
+		john.setTelefone("9999999");
+		pessoaRepository.save(john);
+		
+		//when
+		Pessoa found = pessoaRepository.findByEmail("john@doe.com");
+		
+		//then
+		assertNotNull(found);
+		assertThat(found.getCpf()).isEqualTo(john.getCpf());
+	}
+	
+	@Test
+	public void whenFindByNameContaing_thenReturnPessoa() {
+		//given
+		Pessoa john = new Pessoa();
+		john.setCpf("791.754.750-73");
+		john.setNome("John Doe");
+		john.setEmail("john@doe.com");
+		john.setTelefone("9999999");
+		pessoaRepository.save(john);
+		
+		//when
+		Pessoa found = pessoaRepository.findByNomeContaining("Doe");
+		
+		//then
+		assertNotNull(found);
+		assertThat(found.getCpf()).isEqualTo(john.getCpf());
 	}
 }

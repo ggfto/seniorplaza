@@ -44,6 +44,13 @@ public class Pessoa {
 	
 	private Timestamp dataAlteracao;
 	
+	public void setCpf(String cpf) {
+		if(cpf != null) {
+			cpf = cpf.replace(".", "").replace("-", "");
+		}
+		this.cpf = cpf;
+	}
+	
 	@Override
 	public String toString() {
 		return "Pessoa [codPessoa=" + id + ", cpf=" + cpf + ", nome=" + nome + ", telefone=" + telefone

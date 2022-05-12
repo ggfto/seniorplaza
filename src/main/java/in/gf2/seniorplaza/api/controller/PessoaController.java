@@ -1,16 +1,12 @@
 package in.gf2.seniorplaza.api.controller;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -33,8 +29,7 @@ import in.gf2.seniorplaza.domain.service.PessoaCadastroService;
 @CrossOrigin
 @RequestMapping("/pessoas")
 public class PessoaController extends PlazaController {
-	private static final int PAGE_SIZE = 10;
-	
+
 	@Autowired
 	private PessoaRepository pessoaRepository;
 	
@@ -43,11 +38,7 @@ public class PessoaController extends PlazaController {
 	
 	@GetMapping("/page/{page}")
 	public List<Pessoa> getAllPessoaPaged(@PathVariable Integer page) {
-		List<Pessoa> list = new ArrayList<>();
-		Pageable paging = PageRequest.of(page, PAGE_SIZE);
-		Page<Pessoa> paged = pessoaRepository.findAll(paging);
-		list = paged.toList();
-		return list;
+		return pessoaService.getAllPessoasPaged(page);
 	}
 	
 	@GetMapping("/{id}")
